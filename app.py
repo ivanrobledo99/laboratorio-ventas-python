@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from database import engine, base
+from database import engine, base, SessionLocal
 from models import Producto, ProductoCreate
 app=FastAPI()
 
@@ -12,4 +12,16 @@ def inicio():
 
 @app.post("/productos")
 def crear_producto(producto: ProductoCreate):
-    return producto 
+    db = SessionLocal()
+
+    nuevo_producto = Producto(
+        nombre=producto.nombre,
+        precio=producto.precio
+    )
+
+    db.add(nuevo_producto)
+    db.commit()
+    db.refresh(nuevo_producto)
+    db.close()
+
+    return nuevo_producto
