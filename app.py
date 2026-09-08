@@ -64,4 +64,19 @@ def Agregar_Producto_ID(id:int, producto:ProductoCreate):
     return producto_db
 
 
+@app.delete("/producto/{id}")
+def Eliminar_Producto(id:int):
+    db=SessionLocal()
 
+    producto_db=db.query(Producto).filter(Producto.id==id).first()
+
+    if producto_db is None:
+        raise HTTPException(status_code=404, detail="PRODUCTO NO ENCONTRADO")
+
+    db.delete(producto_db)
+    db.commit()
+
+    db.close()
+    return
+
+    
