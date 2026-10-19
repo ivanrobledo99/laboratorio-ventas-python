@@ -7,9 +7,8 @@ from datetime import date,time
 class Producto(base):
     __tablename__ = "productos"
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String)
-    precio = Column(Float)
-    ventas=relationship("Venta", back_populates="producto")
+    nombre = Column(String,nullable=False)
+    precio = Column(Float,nullable=False)
 
 
 class ProductoCreate(BaseModel):
@@ -20,12 +19,9 @@ class ProductoCreate(BaseModel):
 class Venta(base):
     __tablename__="ventas"
     id=Column(Integer,primary_key=True,index=True)
-    fecha=Column(Date)
-    hora=Column(Time)
-    id_producto=Column(Integer,ForeignKey("productos.id"))
-    cantidad=Column(Integer)
-    precio_total=Column(Float)
-    producto=relationship("Producto", back_populates="ventas")
+    fecha=Column(Date,nullable=False)
+    hora=Column(Time,nullable=False)
+    id_carrito=Column(Integer,ForeignKey("Carritos.id"),unique=True, nullable=False)
 
 
 class VentaCreate(BaseModel):
@@ -52,3 +48,16 @@ class VentaResponse(BaseModel):
 
     class Config:
         from_attributes=True
+
+class Carrito(base):
+    __tablename__="Carritos"
+    id=Column(Integer, primary_key=True, index=True)
+    fecha_creacion=Column(Date,nullable=False)
+    estado=Column(String,nullable=False)
+
+class Carrito_producto(base):
+    __tablename__="Carrito_Producto"
+    id=Column(Integer, primary_key=True, index=True)
+    id_carrito=Column(Integer, ForeignKey("Carritos.id"), nullable=False)
+    id_producto=Column(Integer, ForeignKey("productos.id"), nullable=False)
+    cantidad=Column(Integer,nullable=False)
