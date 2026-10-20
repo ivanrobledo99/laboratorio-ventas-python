@@ -61,3 +61,15 @@ class Carrito_producto(base):
     id_carrito=Column(Integer, ForeignKey("Carritos.id"), nullable=False)
     id_producto=Column(Integer, ForeignKey("productos.id"), nullable=False)
     cantidad=Column(Integer,nullable=False)
+
+class CarritoCreate(BaseModel):
+    fecha_creacion:date
+    estado:str
+
+class CarritoResponse(BaseModel):
+    id:int
+    fecha_creacion:date
+    estado:str
+    class Config:
+        from_attributes:True
+
