@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from database import engine, base, SessionLocal
-from models import Producto, ProductoCreate, Venta, VentaCreate, VentaResponse, ProductoResponse
+from models import Producto, ProductoCreate, Venta, VentaCreate, VentaResponse, ProductoResponse, Carrito, CarritoCreate,CarritoResponse
+
 app=FastAPI()
 
 base.metadata.create_all(bind=engine)
@@ -186,3 +187,76 @@ def Agregar_Venta(id:int,venta:VentaCreate):
     db.close()
     
     return Nueva_venta
+
+@app.post("/carritos", response_model=CarritoResponse, status_code=201)
+def crear_carrito(carrito: CarritoCreate):
+    db=SessionLocal()
+
+    nuevo_carrito = Carrito(
+        fecha_creacion=carrito.fecha_creacion,
+        estado=carrito.estado
+    )
+
+    db.add(nuevo_carrito)
+    db.commit()
+    db.refresh(nuevo_carrito)
+    db.close()
+
+    return nuevo_carrito
+
+@app.get("/carritos",response_model=list[CarritoResponse])
+def obtener_carritos():
+    db=SessionLocal()
+    
+    carrito=db.query(Carrito).all()
+
+    db.close()
+    return carrito
+
+@app.get("/carritos/{id}",response_model=CarritoResponse)
+def obtener_carrito_id(id: int):
+    db=SessionLocal()
+
+    producto=db.query(Carrito).filter(Carrito.id==id).first()
+    if producto is None:
+        db.close()
+        raise HTTPException(status_code=404, detail="CARRITO NO ENCONTRADO")
+
+    db.close()
+    return producto
+
+@app.put("/carritos/{id}",response_model=CarritoResponse)
+def Actualizar_carrito(id:int, carrito:CarritoCreate):
+
+    db=SessionLocal()
+
+    carrito_db= db.query(Carrito).filter(Carrito.id==id).first()
+
+    if carrito_db is None:
+        db.close()
+        raise HTTPException(status_code=404,detail="carrito no encontrado")
+
+    carrito_db.fecha_creacion=carrito.fecha_creacion
+    carrito_db.estado=carrito.estado
+
+    db.commit()
+    db.refresh(carrito_db)
+    db.close()
+    return carrito_db
+
+@app.delete("/carritos/{id}",response_model=CarritoResponse)
+def Eliminar_carrito(id:int):
+    db=SessionLocal()
+
+    carrito_db=db.query(Carrito).filter(Carrito.id==id).first()
+
+    if carrito_db is None:
+        db.close()
+        raise HTTPException(status_code=404,detail="CARRITO NO ENCONTRADO")
+
+    db.delete(carrito_db)
+    db.commit()
+    db.close()
+    return carrito_db
+
+
